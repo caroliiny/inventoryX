@@ -44,6 +44,11 @@ Ela contém:
 - Requisitos
 - Casos de Uso
 
+    Detalhes sobre a modelagem do banco de dados estão em `docs/database`
+
+    - Diagrama entidade-relacionamento: feito na plataforma **MERMAID**.
+    - Imagem do diagrama em formato PNG e código do projeto na linguagem da ferramenta.
+    
 ---
 
 ## 🎯 Objetivo

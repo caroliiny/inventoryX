@@ -1,0 +1,109 @@
+erDiagram
+
+    EMPRESA ||--o{ USUARIO : possui
+    EMPRESA ||--o{ CATEGORIA : possui
+    EMPRESA ||--o{ FORNECEDOR : possui
+    EMPRESA ||--o{ PRODUTO : possui
+    EMPRESA ||--o{ MOVIMENTACAO : registra
+    EMPRESA ||--o{ AUDITORIA : possui
+
+    CATEGORIA ||--o{ PRODUTO : classifica
+
+    FORNECEDOR ||--o{ PRODUTO : fornece
+
+    PRODUTO ||--o{ MOVIMENTACAO : possui
+
+    USUARIO ||--o{ MOVIMENTACAO : realiza
+
+    USUARIO ||--o{ AUDITORIA : executa
+
+
+    EMPRESA {
+        uuid id PK
+        varchar nome
+        varchar cnpj UK
+        varchar email UK
+        varchar telefone
+        boolean ativo
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+
+    USUARIO {
+        uuid id PK
+        varchar nome
+        varchar email UK
+        varchar senhaHash
+        enum cargo
+        boolean ativo
+        uuid empresaId FK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+
+    CATEGORIA {
+        uuid id PK
+        varchar nome
+        text descricao
+        boolean ativo
+        uuid empresaId FK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+
+    FORNECEDOR {
+        uuid id PK
+        varchar nome
+        varchar email
+        varchar telefone
+        varchar endereco
+        boolean ativo
+        uuid empresaId FK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+
+    PRODUTO {
+        uuid id PK
+        varchar nome
+        text descricao
+        varchar codigo
+        varchar sku
+        decimal preco
+        int quantidade
+        int estoqueMinimo
+        int estoqueMaximo
+        boolean ativo
+        uuid empresaId FK
+        uuid categoriaId FK
+        uuid fornecedorId FK
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+
+    MOVIMENTACAO {
+        uuid id PK
+        enum tipo
+        int quantidade
+        text observacao
+        uuid produtoId FK
+        uuid usuarioId FK
+        uuid empresaId FK
+        timestamp createdAt
+    }
+
+
+    AUDITORIA {
+        uuid id PK
+        varchar acao
+        varchar entidade
+        uuid entidadeId
+        uuid usuarioId FK
+        uuid empresaId FK
+        timestamp createdAt
+    }
