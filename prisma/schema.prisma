@@ -11,3 +11,150 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Empresa {
+  id        String   @id @default(uuid())
+  nome      String
+  cnpj      String   @unique
+  email     String   @unique
+  telefone  String?
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  usuarios      Usuario[]
+  categorias    Categoria[]
+  fornecedores  Fornecedor[]
+  produtos      Produto[]
+  movimentacoes Movimentacao[]
+  auditorias    Auditoria[]
+}
+
+model Usuario {
+  id         String   @id @default(uuid())
+  nome       String
+  email      String
+  senhaHash  String
+  cargo      Cargo    @default(ESTOQUISTA)
+  ativo      Boolean  @default(true)
+  empresaId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  empresa        Empresa        @relation(fields: [empresaId], references: [id])
+  movimentacoes  Movimentacao[]
+  auditorias     Auditoria[]
+
+  @@unique([empresaId, email])
+}
+
+enum Cargo {
+  ADMIN
+  ESTOQUISTA
+}
+
+enum TipoMovimentacao {
+  ENTRADA
+  SAIDA
+}
+
+model Categoria {
+  id         String   @id @default(uuid())
+  nome       String
+  descricao  String?
+  ativo      Boolean  @default(true)
+  empresaId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  empresa  Empresa   @relation(fields: [empresaId], references: [id])
+  produtos Produto[]
+
+  @@unique([empresaId, nome])
+}
+
+model Fornecedor {
+  id         String   @id @default(uuid())
+  nome       String
+  email      String?
+  telefone   String?
+  endereco   String?
+  ativo      Boolean  @default(true)
+  empresaId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  empresa  Empresa   @relation(fields: [empresaId], references: [id])
+  produtos Produto[]
+}
+
+model Produto {
+  id             String   @id @default(uuid())
+  nome           String
+  descricao      String?
+  codigo         String
+  sku            String
+  preco          Decimal  @db.Decimal(10, 2)
+  quantidade     Int      @default(0)
+  estoqueMinimo  Int      @default(0)
+  estoqueMaximo  Int?
+  ativo          Boolean  @default(true)
+
+  empresaId      String
+  categoriaId    String
+  fornecedorId   String
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  empresa        Empresa      @relation(fields: [empresaId], references: [id])
+  categoria      Categoria    @relation(fields: [categoriaId], references: [id])
+  fornecedor     Fornecedor   @relation(fields: [fornecedorId], references: [id])
+  movimentacoes  Movimentacao[]
+
+  @@unique([empresaId, codigo])
+  @@unique([empresaId, sku])
+  @@index([empresaId, nome])
+  @@index([empresaId, categoriaId])
+  @@index([empresaId, fornecedorId])
+}
+
+model Movimentacao {
+  id          String           @id @default(uuid())
+  tipo        TipoMovimentacao
+  quantidade  Int
+  observacao  String?
+
+  produtoId   String
+  usuarioId   String
+  empresaId   String
+
+  createdAt   DateTime @default(now())
+
+  produto     Produto @relation(fields: [produtoId], references: [id])
+  usuario     Usuario @relation(fields: [usuarioId], references: [id])
+  empresa     Empresa @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId, createdAt])
+  @@index([produtoId, createdAt])
+}
+
+model Auditoria {
+  id          String   @id @default(uuid())
+  acao        String
+  entidade    String
+  entidadeId  String
+
+  usuarioId   String
+  empresaId   String
+
+  createdAt   DateTime @default(now())
+
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+  empresa     Empresa  @relation(fields: [empresaId], references: [id])
+
+  @@index([empresaId, createdAt])
+  @@index([usuarioId, createdAt])
+  @@index([entidade, entidadeId])
+}
+
